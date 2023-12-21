@@ -15,7 +15,7 @@ tuntap::tuntap(int mode, int id)
     if (id < 0 || id > TUNTAP_ID_MAX) {
         throw std::invalid_argument("Tunnel ID is invalid");
     }
-    if (tuntap_start(_dev, mode, TUNTAP_ID_ANY) == -1) {
+    if (tuntap_start(_dev, mode, TUNTAP_ID_ANY)) {
         throw std::runtime_error("tuntap_start failed");
     }
 }
@@ -85,6 +85,9 @@ tuntap::mtu() const
 void
 tuntap::mtu(int m)
 {
+    if (m < 1 || m > 65535) {
+        throw std::invalid_argument("Invalid mtu");
+    }
     if (tuntap_set_mtu(_dev, m)) {
         throw std::runtime_error("Failed to set mtu for tuntap device");
     }
@@ -93,6 +96,9 @@ tuntap::mtu(int m)
 void
 tuntap::ip(std::string const &s, int netmask)
 {
+    if (netmask > 128) {
+        throw std::invalid_argument("Invalid netmask");
+    }
     if (tuntap_set_ip(_dev, s.c_str(), netmask)) {
         throw std::runtime_error("Failed to set ip for tuntap device");
     }
